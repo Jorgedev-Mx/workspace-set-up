@@ -1,8 +1,6 @@
----
 
 ⬅️ [Volver al Menú Principal](README.md)
 
----
 
 
 # 🖱️ Manual de Configuración de Mouse, Scroll, Movimiento de Ventanas y Scroll Diagonal por Teclado con AutoHotkey v2.0 (Chocolatey Edition)
