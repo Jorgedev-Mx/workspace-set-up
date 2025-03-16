@@ -1,12 +1,12 @@
-# 🖱️ Manual de Configuración de Mouse, Scroll y Movimiento de Ventanas por Teclado con AutoHotkey v2.0 (Chocolatey Edition)
-**Versión: 1.0**  
-**Autor:** [Tu Nombre]  
-**Fecha:** 2025
+# 🖱️ Manual de Configuración de Mouse, Scroll, Movimiento de Ventanas y Scroll Diagonal por Teclado con AutoHotkey v2.0 (Chocolatey Edition)
+**Versión: 2.0**  
+**Autor:** Jorge  
+**Fecha:** 2025-03-16
 
 ---
 
 ## ✅ ¿Qué hace este sistema?
-Permite mover el cursor del mouse, hacer clics, hacer scroll y mover ventanas a los snaps de Windows **usando solo el teclado**, sin necesidad de un mouse físico.  
+Permite mover el cursor del mouse, hacer clics, hacer scroll vertical y diagonal, y mover ventanas a los snaps de Windows **usando solo el teclado**, sin necesidad de un mouse físico.  
 Funciona en **Windows 11** con **AutoHotkey v2.0**, compatible con **múltiples monitores** de diferentes resoluciones y posiciones.
 
 ---
@@ -33,7 +33,7 @@ choco install autohotkey --version=2.0.12
 
 ---
 
-### 2. Crear el Script de Control de Mouse, Scroll y Movimiento de Ventanas
+### 2. Crear el Script de Control de Mouse, Scroll, Movimiento de Ventanas y Scroll Diagonal
 
 #### 2.1. Abrir **Notepad** o tu editor favorito.
 
@@ -43,37 +43,69 @@ choco install autohotkey --version=2.0.12
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
-; Ctrl + Alt + H = Win + Left
+; ===========================
+; Mover Ventanas Snap Areas
+; ===========================
 ^!h:: Send("#{Left}")
-
-; Ctrl + Alt + L = Win + Right
 ^!l:: Send("#{Right}")
-
-; Ctrl + Alt + K = Win + Up
 ^!k:: Send("#{Up}")
-
-; Ctrl + Alt + J = Win + Down
 ^!j:: Send("#{Down}")
 
-; Movimiento entre monitores (ya lo tenías perfecto)
-step := 30
+; ===========================
+; Configuración General
+; ===========================
+baseStep := 10
+maxStep := 100
+acceleration := 5
+delay := 50
 
-#+h:: MoveCursor("left")
-#+l:: MoveCursor("right")
-#+k:: MoveCursor("up")
-#+j:: MoveCursor("down")
+; ===========================
+; Movimiento del Mouse (Con Aceleración)
+; ===========================
+#+h:: MoveContinuous("left", "h")
+#+l:: MoveContinuous("right", "l")
+#+k:: MoveContinuous("up", "k")
+#+j:: MoveContinuous("down", "j")
 
-; Clicks
+; ===========================
+; Clicks del Mouse
+; ===========================
 #+u:: Click("left")
 #+o:: Click("right")
 
-; SCROLL DEFINITIVO
-#+m:: Send("{WheelUp 3}")   ; Scroll arriba
-#+n:: Send("{WheelDown 3}") ; Scroll abajo
+; ===========================
+; Scroll Vertical Clásico
+; ===========================
+#+m:: Send("{WheelUp 3}")
+#+n:: Send("{WheelDown 3}")
 
-; ---- Movimiento de cursor (manteniendo lo que ya funciona) ----
-MoveCursor(direction) {
-    global monitors, virtual_left, virtual_top, virtual_right, virtual_bottom, step
+; ===========================
+; Scroll Diagonal (Win + Alt + WASD)
+; ===========================
+#!w:: ScrollDiagonal("up", "right")
+#!a:: ScrollDiagonal("down", "left")
+#!s:: ScrollDiagonal("down", "right")
+#!d:: ScrollDiagonal("up", "left")
+
+; ===========================
+; Función de Movimiento Continuo con Aceleración
+; ===========================
+MoveContinuous(direction, keyName) {
+    global baseStep, maxStep, acceleration, delay
+    step := baseStep
+
+    while GetKeyState(keyName, "P") && (GetKeyState("LWin", "P") || GetKeyState("RWin", "P")) && (GetKeyState("LShift", "P") || GetKeyState("RShift", "P")) {
+        MoveCursor(direction, step)
+        step := (step + acceleration > maxStep) ? maxStep : step + acceleration
+        Sleep delay
+    }
+}
+
+; ===========================
+; Función de Movimiento de Cursor en Pantallas Múltiples
+; ===========================
+MoveCursor(direction, step) {
+    global monitors, virtual_left, virtual_top, virtual_right, virtual_bottom
 
     MouseGetPos(&curX, &curY)
 
@@ -89,7 +121,6 @@ MoveCursor(direction) {
     else if (direction = "down")
         newY += step
 
-    ; Limitar dentro del área virtual
     if (newX < virtual_left)
         newX := virtual_left
     if (newX >= virtual_right)
@@ -102,8 +133,27 @@ MoveCursor(direction) {
     MouseMove(newX, newY, 0)
 }
 
-; Monitores: (llamalo antes de usar MoveCursor en el script principal)
-; CoordMode y setup inicial acá
+; ===========================
+; Scroll Diagonal (Arriba/Abajo + Izquierda/Derecha)
+; ===========================
+ScrollDiagonal(vertical, horizontal) {
+    if (vertical = "up")
+        Send("{WheelUp 3}")
+    else if (vertical = "down")
+        Send("{WheelDown 3}")
+
+    MouseGetPos(&curX, &curY)
+
+    offset := 10
+    if (horizontal = "left")
+        MouseMove(curX - offset, curY, 0)
+    else if (horizontal = "right")
+        MouseMove(curX + offset, curY, 0)
+}
+
+; ===========================
+; Setup de Monitores y DPI Awareness
+; ===========================
 DllCall("user32.dll\SetThreadDpiAwarenessContext", "ptr", -3)
 CoordMode("Mouse", "Screen")
 
@@ -148,20 +198,21 @@ MouseKeyboardControl.ahk
 
 ## 🎹 Atajos de Teclado Disponibles
 
-| Combinación            | Acción                                     |
-|------------------------|--------------------------------------------|
-| `Ctrl + Alt + H`       | Mueve la ventana al lado izquierdo (snap)  |
-| `Ctrl + Alt + L`       | Mueve la ventana al lado derecho (snap)    |
-| `Ctrl + Alt + K`       | Maximiza o mueve ventana hacia arriba      |
-| `Ctrl + Alt + J`       | Minimiza o mueve ventana hacia abajo       |
-| `Win + Shift + H`      | Mueve el mouse a la izquierda              |
-| `Win + Shift + L`      | Mueve el mouse a la derecha                |
-| `Win + Shift + K`      | Mueve el mouse hacia arriba                |
-| `Win + Shift + J`      | Mueve el mouse hacia abajo                 |
-| `Win + Shift + U`      | Clic izquierdo                             |
-| `Win + Shift + O`      | Clic derecho                               |
-| `Win + Shift + M`      | Scroll hacia arriba                       |
-| `Win + Shift + N`      | Scroll hacia abajo                        |
+| Combinación              | Acción                                 |
+|--------------------------|----------------------------------------|
+| `Ctrl + Alt + H`         | Snap a la izquierda (Win + Left)       |
+| `Ctrl + Alt + L`         | Snap a la derecha (Win + Right)        |
+| `Ctrl + Alt + K`         | Maximiza ventana (Win + Up)            |
+| `Ctrl + Alt + J`         | Restaura/minimiza ventana (Win + Down) |
+| `Win + Shift + HJKL`     | Mueve el mouse en cualquier dirección  |
+| `Win + Shift + U`        | Click izquierdo                       |
+| `Win + Shift + O`        | Click derecho                         |
+| `Win + Shift + M`        | Scroll hacia arriba                  |
+| `Win + Shift + N`        | Scroll hacia abajo                   |
+| `Win + Alt + W`          | Scroll diagonal arriba + derecha     |
+| `Win + Alt + A`          | Scroll diagonal abajo + izquierda    |
+| `Win + Alt + S`          | Scroll diagonal abajo + derecha      |
+| `Win + Alt + D`          | Scroll diagonal arriba + izquierda   |
 
 ---
 
@@ -169,12 +220,15 @@ MouseKeyboardControl.ahk
 
 ### Cambiar la velocidad de movimiento
 ```ahk
-step := 30 ; Cambiar a 10 para más precisión, o 50 para velocidad turbo
+baseStep := 10
+maxStep := 100
+acceleration := 5
+delay := 50
 ```
 
-### Ajustar el scroll
+### Ajustar el scroll diagonal
 ```ahk
-Send("{WheelUp 3}") ; Aumentá o reducí el número de pasos (3 es normal)
+offset := 10 ; desplazamiento lateral para scroll diagonal
 ```
 
 ---
@@ -203,9 +257,9 @@ Send("{WheelUp 3}") ; Aumentá o reducí el número de pasos (3 es normal)
 
 ## 🧠 Siguientes Niveles (Opcional)
 
-- Agregar movimiento en diagonales.
+- Agregar movimiento en diagonales para el cursor.
 - Scroll horizontal (`WheelLeft`, `WheelRight`).
-- Aceleración progresiva del puntero.
+- Aceleración progresiva del scroll.
 - Macros de productividad.
 
 ---
@@ -219,7 +273,7 @@ Si querés agregar mejoras o automatizaciones, está todo listo para seguir.
 
 # 🧑‍💻 Autor
 
-**Tu nombre aquí**  
-Versión: 1.0  
-Fecha: 2025
+**Jorge**  
+Versión: 2.0  
+Fecha: 2025-03-16
 
