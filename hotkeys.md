@@ -5,6 +5,13 @@
 
 ---
 
+⬅️ [Volver al Menú Principal](README.md)
+
+---
+
+
+---
+
 ## ✅ ¿Qué hace este sistema?
 Permite mover el cursor del mouse, hacer clics, hacer scroll vertical y diagonal, y mover ventanas a los snaps de Windows **usando solo el teclado**, sin necesidad de un mouse físico.  
 Funciona en **Windows 11** con **AutoHotkey v2.0**, compatible con **múltiples monitores** de diferentes resoluciones y posiciones.
