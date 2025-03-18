@@ -32,7 +32,7 @@ Funciona en **Windows 11** con **AutoHotkey v2.0**, compatible con **múltiples 
 
 Abrí **PowerShell como Administrador** y ejecutá:
 ```powershell
-choco install autohotkey --version=2.0.12
+choco install autohotkey
 ```
 ✅ Esto instalará la versión correcta de AutoHotkey v2.0.
 
