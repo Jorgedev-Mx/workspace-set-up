@@ -38,9 +38,20 @@ choco install autohotkey
 
 ---
 
+Abrí **Windows + r** y ejecutá:
+```powershell
+   shell:startup
+```
+
+
+✅ Esto instalará la versión correcta de AutoHotkey v2.0.
+
+---
+
 ### 2. Crear el Script de Control de Mouse, Scroll, Movimiento de Ventanas y Scroll Diagonal
 
-#### 2.1. Abrir **Notepad** o tu editor favorito.
+#### 2.1. Abrir **Notepad** o tu editor favorito. y guardar el crhivo con extension mi-config.ahk
+
 
 #### 2.2. Copiar el siguiente código y pegarlo en el editor:
 
